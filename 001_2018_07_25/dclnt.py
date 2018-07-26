@@ -21,7 +21,21 @@ def raw(x):
     return x
 
 
+# Будет использоваться у
+# + get_verbs_from_function_name
+# + split_snake_case_name_to_words
+
+
 def filtered_split(statement, sep=None, filter_function=None):
+    """
+    Будет использоваться у
+    + get_verbs_from_function_name
+    + split_snake_case_name_to_words
+    :param statement: исходное выражение
+    :param sep: разделитель для split
+    :param filter_function: функция фильтрации
+    :return:
+    """
     if sep is None:
         sep = '_'
     if filter_function is None:
@@ -48,7 +62,7 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
         for file in files:
             if file.endswith('.py'):
                 filenames.append(os.path.join(dirname, file))
-                # Могу 100 вынестив kwargs
+                # Могу 100 вынести в kwargs
                 if len(filenames) == 100:
                     break
     print('total %s files' % len(filenames))
@@ -73,12 +87,12 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
     return trees
 
 
-# node_function
+# node_attr_function в get_nodes_attr для get_all_names
 def get_node_id(node):
     return node.id
 
 
-# node_function
+# node_attr_function в get_nodes_attr для get_nodes_names_at_lowercase
 def get_node_lowercase_name(node):
     return node.name.lower()
 
@@ -94,12 +108,10 @@ def is_ast_function_def(node):
 
 
 def get_nodes_attr(_tree, node_attr_function, filter_node_function):
-    return [
-        node_attr_function(node) for node in ast.walk(_tree) if filter_node_function(node)
-    ]
+    return [node_attr_function(node) for node in ast.walk(_tree) if filter_node_function(node)]
 
 
-def get_node_names_at_lowercase(_tree):
+def get_nodes_names_at_lowercase(_tree):
     return get_nodes_attr(_tree, node_attr_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
 
 
@@ -165,11 +177,11 @@ def get_functions_names_at_lowercase_in_trees(trees):
     # function_names = [
     #     f for f in flat(
     #         [
-    #             get_node_names_at_lowercase(t) for t in trees
+    #             get_nodes_names_at_lowercase(t) for t in trees
     #         ]
     #     ) if not (f.startswith('__') and f.endswith('__'))
     # ]
-    function_names = get_trees_nodes_with_powered_function_apply(trees, get_node_names_at_lowercase)
+    function_names = get_trees_nodes_with_powered_function_apply(trees, get_nodes_names_at_lowercase)
     return function_names
 
 
@@ -202,6 +214,7 @@ def get_top_functions_names_in_path(path, top_size=None):
     # return collections.Counter(nms).most_common(top_size)
     nms = get_functions_names_at_lowercase_in_trees(t)
     return collections.Counter(nms).most_common(top_size)
+
 
 # Можно передавать директорию в качетве sys.args[0]
 # c if __name__ == '__main__':
