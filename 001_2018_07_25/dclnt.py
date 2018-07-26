@@ -48,6 +48,24 @@ def filtered_split(statement, sep=None, filter_function=None):
 # Path = ''
 
 
+def get_tree_of_file_content(file_content):
+    try:
+        return ast.parse(file_content)
+    except SyntaxError as e:
+        print(e)
+        return
+
+
+# для снижения вложенности, если было б нужно
+def complex_append_to_list(trees, last_element, first_element, second_element):
+    if first_element and second_element:
+        trees.append((first_element, second_element, last_element))
+    elif first_element and not second_element:
+        trees.append((first_element, last_element))
+    else:
+        trees.append(last_element)
+
+
 def get_trees(_path, with_filenames=None, with_file_content=None):
     # Выявлено, что _path не используется, но я не трогал логику,
     # так как возможно предполагается, что get_trees может УЖЕ вызываться чем-то сторонним
@@ -73,13 +91,19 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
     for filename in filenames:
         with open(filename, 'r', encoding='utf-8') as attempt_handler:
             main_file_content = attempt_handler.read()
-        try:
-            tree = ast.parse(main_file_content)
-        except SyntaxError as e:
-            print(e)
-            tree = None
+
+        # Ver.0
+        # try:
+        #     tree = ast.parse(main_file_content)
+        # except SyntaxError as e:
+        #     print(e)
+        #     tree = None
+        # Ver.1
+        tree = get_tree_of_file_content(main_file_content)
+
         # Можно снизить вложенность последующего, просто вынеся в функцию
         # не будет if if else else тут, а только вызов функции
+        # Ver.0
         if with_filenames:
             if with_file_content:
                 trees.append((filename, main_file_content, tree))
@@ -87,6 +111,15 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
                 trees.append((filename, tree))
         else:
             trees.append(tree)
+        # Ver.1
+        # Больше фича, нежели необходимость
+        # complex_append_to_list(
+        #     trees,
+        #     tree,
+        #     first_element=filename if with_filenames else False,
+        #     second_element=main_file_content if with_file_content else False,
+        # )
+
     print('trees generated')
     return trees
 
