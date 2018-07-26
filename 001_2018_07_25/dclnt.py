@@ -1,6 +1,7 @@
 import ast
 import os
 import collections
+import sys
 
 from nltk import pos_tag
 
@@ -43,7 +44,8 @@ def filtered_split(statement, sep=None, filter_function=None):
     return [_part for _part in statement.split(sep) if filter_function(_part)]
 
 
-Path = ''
+# Ver.0
+# Path = ''
 
 
 def get_trees(_path, with_filenames=None, with_file_content=None):
@@ -57,8 +59,10 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
         with_file_content = False
     filenames = []
     trees = []
-    path = Path
-    for dirname, dirs, files in os.walk(path, topdown=True):
+    # Ver.0
+    # path = Path
+    # for dirname, dirs, files in os.walk(path, topdown=True):
+    for dirname, dirs, files in os.walk(_path, topdown=True):
         for file in files:
             if file.endswith('.py'):
                 filenames.append(os.path.join(dirname, file))
@@ -189,13 +193,19 @@ def get_top_verbs_in_path(path, top_size=None):
     # Я обычно так инициализирую значения по умолчанию
     if top_size is None:
         top_size = 10
-    global Path
-    Path = path
-    trees = [t for t in get_trees(None) if t]
+
+    # Ver.0
+    # global Path
+    # Path = path
+    # trees = [t for t in get_trees(None) if t]
+    # Ver.1
+    trees = [t for t in get_trees(path) if t]
+
     # Ver.0
     # fncs = [f for f in
     #         flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]) if
     #         not (f.startswith('__') and f.endswith('__'))]
+    # Ver.1
     fncs = get_functions_names_at_lowercase_in_trees(trees)
     print('functions extracted')
     verbs = flat([get_verbs_from_function_name(function_name) for function_name in fncs])
@@ -218,21 +228,30 @@ def get_top_functions_names_in_path(path, top_size=None):
 
 # Можно передавать директорию в качетве sys.args[0]
 # c if __name__ == '__main__':
+if __name__ == '__main__':
 
-wds = []
-projects = [
-    'django',
-    'flask',
-    'pyramid',
-    'reddit',
-    'requests',
-    'sqlalchemy',
-]
-for project in projects:
-    path = os.path.join('.', project)
-    wds += get_top_verbs_in_path(path)
+    base_path = sys.argv[1] if len(sys.argv) >= 2 else '.'
 
-top_size = 200
-print('total %s words, %s unique' % (len(wds), len(set(wds))))
-for word, occurence in collections.Counter(wds).most_common(top_size):
-    print(word, occurence)
+    wds = []
+    projects = [
+        'django',
+        'flask',
+        'pyramid',
+        'reddit',
+        'requests',
+        'sqlalchemy',
+    ]
+    for project in projects:
+        # Ver.0
+        # path = os.path.join('.', project)
+        # Ver.1
+        path = os.path.join(base_path, project)
+        wds += get_top_verbs_in_path(path)
+
+    # Ver.0
+    # top_size = 200
+    # Ver.1
+    top_size = sys.argv[2] if len(sys.argv) >= 3 else 200
+    print('total %s words, %s unique' % (len(wds), len(set(wds))))
+    for word, occurence in collections.Counter(wds).most_common(top_size):
+        print(word, occurence)
