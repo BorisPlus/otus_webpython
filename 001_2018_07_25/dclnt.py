@@ -32,7 +32,15 @@ def filtered_split(statement, sep=None, filter_function=None):
 Path = ''
 
 
-def get_trees(_path, with_filenames=False, with_file_content=False):
+def get_trees(_path, with_filenames=None, with_file_content=None):
+    # Выявлено, что _path не используется, но я не трогал логику,
+    # так как возможно предполагается, что get_trees может УЖЕ вызываться чем-то сторонним
+
+    # Я обычно так инициализирую значения по умолчанию
+    if with_filenames is None:
+        with_filenames = False
+    if with_file_content is None:
+        with_file_content = False
     filenames = []
     trees = []
     path = Path
@@ -40,6 +48,7 @@ def get_trees(_path, with_filenames=False, with_file_content=False):
         for file in files:
             if file.endswith('.py'):
                 filenames.append(os.path.join(dirname, file))
+                # Могу 100 вынестив kwargs
                 if len(filenames) == 100:
                     break
     print('total %s files' % len(filenames))
@@ -51,6 +60,8 @@ def get_trees(_path, with_filenames=False, with_file_content=False):
         except SyntaxError as e:
             print(e)
             tree = None
+        # Можно снизить вложенность последующего, просто вынеся в функцию
+        # не будет if if else else тут, а только вызов функции
         if with_filenames:
             if with_file_content:
                 trees.append((filename, main_file_content, tree))
@@ -82,20 +93,20 @@ def is_ast_function_def(node):
     return isinstance(node, ast.FunctionDef)
 
 
-def get_nodes_attr(_tree, node_function, filter_node_function):
+def get_nodes_attr(_tree, node_attr_function, filter_node_function):
     return [
-        node_function(node) for node in ast.walk(_tree) if filter_node_function(node)
+        node_attr_function(node) for node in ast.walk(_tree) if filter_node_function(node)
     ]
 
 
 def get_node_names_at_lowercase(_tree):
-    return get_nodes_attr(_tree, node_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
+    return get_nodes_attr(_tree, node_attr_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
 
 
 def get_all_names(tree):
     # Ver.0
     # return [node.id for node in ast.walk(tree) if isinstance(node, ast.Name)]
-    return get_nodes_attr(tree, node_function=get_node_id, filter_node_function=is_ast_name)
+    return get_nodes_attr(tree, node_attr_function=get_node_id, filter_node_function=is_ast_name)
 
 
 def get_verbs_from_function_name(function_name):
@@ -130,7 +141,7 @@ def get_all_words_in_path(path):
     return flat([split_snake_case_name_to_words(function_name) for function_name in function_names])
 
 
-def get_functions_names_in_trees(trees):
+def get_functions_names_at_lowercase_in_trees(trees):
     # Ver.0
     # function_names = [
     #     f for f in flat(
@@ -162,7 +173,10 @@ def get_functions_names_in_trees(trees):
     return function_names
 
 
-def get_top_verbs_in_path(path, top_size=10):
+def get_top_verbs_in_path(path, top_size=None):
+    # Я обычно так инициализирую значения по умолчанию
+    if top_size is None:
+        top_size = 10
     global Path
     Path = path
     trees = [t for t in get_trees(None) if t]
@@ -170,22 +184,27 @@ def get_top_verbs_in_path(path, top_size=10):
     # fncs = [f for f in
     #         flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]) if
     #         not (f.startswith('__') and f.endswith('__'))]
-    fncs = get_functions_names_in_trees(trees)
+    fncs = get_functions_names_at_lowercase_in_trees(trees)
     print('functions extracted')
     verbs = flat([get_verbs_from_function_name(function_name) for function_name in fncs])
     return collections.Counter(verbs).most_common(top_size)
 
 
-def get_top_functions_names_in_path(path, top_size=10):
+def get_top_functions_names_in_path(path, top_size=None):
+    # Я обычно так инициализирую значения по умолчанию
+    if top_size is None:
+        top_size = 10
     t = get_trees(path)
     # Ver.0
     # nms = [f for f in
     #        flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in t]) if
     #        not (f.startswith('__') and f.endswith('__'))]
     # return collections.Counter(nms).most_common(top_size)
-    nms = get_functions_names_in_trees(t)
+    nms = get_functions_names_at_lowercase_in_trees(t)
     return collections.Counter(nms).most_common(top_size)
 
+# Можно передавать директорию в качетве sys.args[0]
+# c if __name__ == '__main__':
 
 wds = []
 projects = [
