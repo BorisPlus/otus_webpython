@@ -62,38 +62,103 @@ def get_trees(_path, with_filenames=False, with_file_content=False):
     return trees
 
 
+# node_function
+def get_node_id(node):
+    return node.id
+
+
+# node_function
+def get_node_lowercase_name(node):
+    return node.name.lower()
+
+
+# filter_node_function
+def is_ast_name(node):
+    return isinstance(node, ast.Name)
+
+
+# filter_node_function
+def is_ast_function_def(node):
+    return isinstance(node, ast.FunctionDef)
+
+
+def get_nodes_attr(_tree, node_function, filter_node_function):
+    return [
+        node_function(node) for node in ast.walk(_tree) if filter_node_function(node)
+    ]
+
+
+def get_node_names_at_lowercase(_tree):
+    return get_nodes_attr(_tree, node_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
+
+
 def get_all_names(tree):
-    return [node.id for node in ast.walk(tree) if isinstance(node, ast.Name)]
+    # Ver.0
+    # return [node.id for node in ast.walk(tree) if isinstance(node, ast.Name)]
+    return get_nodes_attr(tree, node_function=get_node_id, filter_node_function=is_ast_name)
 
 
 def get_verbs_from_function_name(function_name):
+    # Ver.0
     # return [word for word in function_name.split('_') if is_verb(word)]
     return filtered_split(function_name, is_verb)
 
 
 def split_snake_case_name_to_words(name):
+    # Ver.0
     # return [n for n in name.split('_') if n]
     return filtered_split(name)
 
 
+def get_trees_nodes_with_powered_function_apply(trees, powered_function):
+    function_names = [
+        f for f in flat(
+            [
+                powered_function(t) for t in trees
+            ]
+        ) if not (f.startswith('__') and f.endswith('__'))
+    ]
+    return function_names
+
+
 def get_all_words_in_path(path):
     trees = [t for t in get_trees(path) if t]
-    function_names = [f for f in flat([get_all_names(t) for t in trees]) if
-                      not (f.startswith('__') and f.endswith('__'))]
-
+    # Ver.0
+    # function_names = [f for f in flat([get_all_names(t) for t in trees]) if
+    #                   not (f.startswith('__') and f.endswith('__'))]
+    function_names = get_trees_nodes_with_powered_function_apply(trees, get_all_names)
     return flat([split_snake_case_name_to_words(function_name) for function_name in function_names])
 
 
 def get_functions_names_in_trees(trees):
-    function_names = [
-        f for f in flat(
-            [
-                [
-                    node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)
-                ] for t in trees
-            ]
-        ) if not (f.startswith('__') and f.endswith('__'))
-    ]
+    # Ver.0
+    # function_names = [
+    #     f for f in flat(
+    #         [
+    #             [
+    #                 node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)
+    #             ] for t in trees
+    #         ]
+    #     ) if not (f.startswith('__') and f.endswith('__'))
+    # ]
+    # Ver.1
+    # function_names = [
+    #     f for f in flat(
+    #         [
+    #             get_nodes_attr(t, node_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
+    #             for t in trees
+    #         ]
+    #     ) if not (f.startswith('__') and f.endswith('__'))
+    # ]
+    # Ver.2
+    # function_names = [
+    #     f for f in flat(
+    #         [
+    #             get_node_names_at_lowercase(t) for t in trees
+    #         ]
+    #     ) if not (f.startswith('__') and f.endswith('__'))
+    # ]
+    function_names = get_trees_nodes_with_powered_function_apply(trees, get_node_names_at_lowercase)
     return function_names
 
 
@@ -101,6 +166,7 @@ def get_top_verbs_in_path(path, top_size=10):
     global Path
     Path = path
     trees = [t for t in get_trees(None) if t]
+    # Ver.0
     # fncs = [f for f in
     #         flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]) if
     #         not (f.startswith('__') and f.endswith('__'))]
@@ -111,13 +177,12 @@ def get_top_verbs_in_path(path, top_size=10):
 
 
 def get_top_functions_names_in_path(path, top_size=10):
-    # t = get_trees(path)
+    t = get_trees(path)
+    # Ver.0
     # nms = [f for f in
     #        flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in t]) if
     #        not (f.startswith('__') and f.endswith('__'))]
     # return collections.Counter(nms).most_common(top_size)
-
-    t = get_trees(path)
     nms = get_functions_names_in_trees(t)
     return collections.Counter(nms).most_common(top_size)
 
