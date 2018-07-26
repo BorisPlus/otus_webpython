@@ -21,12 +21,12 @@ def raw(x):
     return x
 
 
-def filtered_split(name, sep=None, filter_function=None):
+def filtered_split(statement, sep=None, filter_function=None):
     if sep is None:
         sep = '_'
     if filter_function is None:
         filter_function = raw
-    return [_part for _part in name.split(sep) if filter_function(_part)]
+    return [_part for _part in statement.split(sep) if filter_function(_part)]
 
 
 Path = ''
@@ -67,11 +67,13 @@ def get_all_names(tree):
 
 
 def get_verbs_from_function_name(function_name):
-    return [word for word in function_name.split('_') if is_verb(word)]
+    # return [word for word in function_name.split('_') if is_verb(word)]
+    return filtered_split(function_name, is_verb)
 
 
 def split_snake_case_name_to_words(name):
-    return [n for n in name.split('_') if n]
+    # return [n for n in name.split('_') if n]
+    return filtered_split(name)
 
 
 def get_all_words_in_path(path):
