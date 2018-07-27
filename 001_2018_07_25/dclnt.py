@@ -6,7 +6,7 @@ import sys
 from nltk import pos_tag
 
 
-def flat(_list):
+def convert_to_flat(_list):
     """ [(1,2), (3,4)] -> [1, 2, 3, 4]"""
     return sum([list(item) for item in _list], [])
 
@@ -18,7 +18,7 @@ def is_verb(word):
     return pos_info[0][1] == 'VB'
 
 
-def raw(x):
+def get_raw(x):
     return x
 
 
@@ -57,39 +57,39 @@ def get_tree_of_file_content(file_content):
 
 
 # для снижения вложенности, если было б нужно
-def complex_append_to_list(trees, last_element, first_element, second_element):
+def complex_append_to_list(list_of_elements, last_element, first_element, second_element):
     if first_element and second_element:
-        trees.append((first_element, second_element, last_element))
+        list_of_elements.append((first_element, second_element, last_element))
     elif first_element and not second_element:
-        trees.append((first_element, last_element))
+        list_of_elements.append((first_element, last_element))
     else:
-        trees.append(last_element)
+        list_of_elements.append(last_element)
 
 
-def get_trees(_path, with_filenames=None, with_file_content=None):
+def get_trees(_path, with_file_names=None, with_file_content=None):
     # Выявлено, что _path не используется, но я не трогал логику,
     # так как возможно предполагается, что get_trees может УЖЕ вызываться чем-то сторонним
 
     # Я обычно так инициализирую значения по умолчанию
-    if with_filenames is None:
-        with_filenames = False
+    if with_file_names is None:
+        with_file_names = False
     if with_file_content is None:
         with_file_content = False
-    filenames = []
+    files_names = []
     trees = []
     # Ver.0
     # path = Path
-    # for dirname, dirs, files in os.walk(path, topdown=True):
-    for dirname, dirs, files in os.walk(_path, topdown=True):
+    # for dir_names, dirs, files in os.walk(path, topdown=True):
+    for dir_names, dirs, files in os.walk(_path, topdown=True):
         for file in files:
             if file.endswith('.py'):
-                filenames.append(os.path.join(dirname, file))
+                files_names.append(os.path.join(dir_names, file))
                 # Могу 100 вынести в kwargs
-                if len(filenames) == 100:
+                if len(files_names) == 100:
                     break
-    print('total %s files' % len(filenames))
-    for filename in filenames:
-        with open(filename, 'r', encoding='utf-8') as attempt_handler:
+    print('total %s files' % len(files_names))
+    for file_name in files_names:
+        with open(file_name, 'r', encoding='utf-8') as attempt_handler:
             main_file_content = attempt_handler.read()
 
         # Ver.0
@@ -104,11 +104,11 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
         # Можно снизить вложенность последующего, просто вынеся в функцию
         # не будет if if else else тут, а только вызов функции
         # Ver.0
-        if with_filenames:
+        if with_file_names:
             if with_file_content:
-                trees.append((filename, main_file_content, tree))
+                trees.append((file_name, main_file_content, tree))
             else:
-                trees.append((filename, tree))
+                trees.append((file_name, tree))
         else:
             trees.append(tree)
         # Ver.1
@@ -116,7 +116,7 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
         # complex_append_to_list(
         #     trees,
         #     tree,
-        #     first_element=filename if with_filenames else False,
+        #     first_element=file_name if with_file_names else False,
         #     second_element=main_file_content if with_file_content else False,
         # )
 
@@ -124,38 +124,46 @@ def get_trees(_path, with_filenames=None, with_file_content=None):
     return trees
 
 
-# node_attr_function в get_nodes_attr для get_all_names
+# node_attribute_function в get_list_of_nodes_attribute для get_all_names
 def get_node_id(node):
     return node.id
 
 
-# node_attr_function в get_nodes_attr для get_nodes_names_at_lowercase
+# node_attribute_function в get_list_of_nodes_attribute для get_nodes_names_at_lowercase
 def get_node_lowercase_name(node):
     return node.name.lower()
 
 
-# filter_node_function
+# node_filter_function
 def is_ast_name(node):
     return isinstance(node, ast.Name)
 
 
-# filter_node_function
+# node_filter_function
 def is_ast_function_def(node):
     return isinstance(node, ast.FunctionDef)
 
 
-def get_nodes_attr(_tree, node_attr_function, filter_node_function):
-    return [node_attr_function(node) for node in ast.walk(_tree) if filter_node_function(node)]
+def get_list_of_nodes_attribute(tree, node_attribute_function, node_filter_function):
+    return [node_attribute_function(node) for node in ast.walk(tree) if node_filter_function(node)]
 
 
-def get_nodes_names_at_lowercase(_tree):
-    return get_nodes_attr(_tree, node_attr_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
+def get_nodes_names_at_lowercase(tree):
+    return get_list_of_nodes_attribute(
+        tree, 
+        node_attribute_function=get_node_lowercase_name, 
+        node_filter_function=is_ast_function_def
+    )
 
 
 def get_all_names(tree):
     # Ver.0
     # return [node.id for node in ast.walk(tree) if isinstance(node, ast.Name)]
-    return get_nodes_attr(tree, node_attr_function=get_node_id, filter_node_function=is_ast_name)
+    return get_list_of_nodes_attribute(
+        tree, 
+        node_attribute_function=get_node_id, 
+        node_filter_function=is_ast_name
+    )
 
 
 def get_verbs_from_function_name(function_name):
@@ -172,7 +180,7 @@ def split_snake_case_name_to_words(name):
 
 def get_trees_nodes_with_powered_function_apply(trees, powered_function):
     function_names = [
-        f for f in flat(
+        f for f in convert_to_flat(
             [
                 powered_function(t) for t in trees
             ]
@@ -184,16 +192,16 @@ def get_trees_nodes_with_powered_function_apply(trees, powered_function):
 def get_all_words_in_path(path):
     trees = [t for t in get_trees(path) if t]
     # Ver.0
-    # function_names = [f for f in flat([get_all_names(t) for t in trees]) if
+    # function_names = [f for f in convert_to_flat([get_all_names(t) for t in trees]) if
     #                   not (f.startswith('__') and f.endswith('__'))]
     function_names = get_trees_nodes_with_powered_function_apply(trees, get_all_names)
-    return flat([split_snake_case_name_to_words(function_name) for function_name in function_names])
+    return convert_to_flat([split_snake_case_name_to_words(function_name) for function_name in function_names])
 
 
 def get_functions_names_at_lowercase_in_trees(trees):
     # Ver.0
     # function_names = [
-    #     f for f in flat(
+    #     f for f in convert_to_flat(
     #         [
     #             [
     #                 node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)
@@ -203,16 +211,16 @@ def get_functions_names_at_lowercase_in_trees(trees):
     # ]
     # Ver.1
     # function_names = [
-    #     f for f in flat(
+    #     f for f in convert_to_flat(
     #         [
-    #             get_nodes_attr(t, node_function=get_node_lowercase_name, filter_node_function=is_ast_function_def)
+    #             get_list_of_nodes_attribute(t, node_function=get_node_lowercase_name, node_filter_function=is_ast_function_def)
     #             for t in trees
     #         ]
     #     ) if not (f.startswith('__') and f.endswith('__'))
     # ]
     # Ver.2
     # function_names = [
-    #     f for f in flat(
+    #     f for f in convert_to_flat(
     #         [
     #             get_nodes_names_at_lowercase(t) for t in trees
     #         ]
@@ -236,12 +244,12 @@ def get_top_verbs_in_path(path, top_size=None):
 
     # Ver.0
     # fncs = [f for f in
-    #         flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]) if
+    #         convert_to_flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]) if
     #         not (f.startswith('__') and f.endswith('__'))]
     # Ver.1
     fncs = get_functions_names_at_lowercase_in_trees(trees)
     print('functions extracted')
-    verbs = flat([get_verbs_from_function_name(function_name) for function_name in fncs])
+    verbs = convert_to_flat([get_verbs_from_function_name(function_name) for function_name in fncs])
     return collections.Counter(verbs).most_common(top_size)
 
 
@@ -252,7 +260,7 @@ def get_top_functions_names_in_path(path, top_size=None):
     t = get_trees(path)
     # Ver.0
     # nms = [f for f in
-    #        flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in t]) if
+    #        convert_to_flat([[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in t]) if
     #        not (f.startswith('__') and f.endswith('__'))]
     # return collections.Counter(nms).most_common(top_size)
     nms = get_functions_names_at_lowercase_in_trees(t)
@@ -265,7 +273,7 @@ if __name__ == '__main__':
 
     base_path = sys.argv[1] if len(sys.argv) >= 2 else '.'
 
-    wds = []
+    verbs = []
     projects = [
         'django',
         'flask',
@@ -278,13 +286,13 @@ if __name__ == '__main__':
         # Ver.0
         # path = os.path.join('.', project)
         # Ver.1
-        path = os.path.join(base_path, project)
-        wds += get_top_verbs_in_path(path)
+        path_to_analyze = os.path.join(base_path, project)
+        verbs += get_top_verbs_in_path(path_to_analyze)
 
     # Ver.0
     # top_size = 200
     # Ver.1
     top_size = sys.argv[2] if len(sys.argv) >= 3 else 200
-    print('total %s words, %s unique' % (len(wds), len(set(wds))))
-    for word, occurence in collections.Counter(wds).most_common(top_size):
+    print('total %s words, %s unique' % (len(verbs), len(set(verbs))))
+    for word, occurence in collections.Counter(verbs).most_common(top_size):
         print(word, occurence)
