@@ -27,7 +27,7 @@ def filtered_split(statement, sep=None, filter_function=None):
         sep = '_'
     if filter_function is None:
         filter_function = get_raw_value
-    return [_part for _part in statement.split(sep) if filter_function(_part)]
+    return [part for part in statement.split(sep) if filter_function(part)]
 
 
 def get_tree_of_file_content(file_content):
