@@ -18,7 +18,7 @@ def is_verb(word):
     return pos_info[0][1] == 'VB'
 
 
-def get_raw(x):
+def get_raw_value(x):
     return x
 
 
@@ -26,7 +26,7 @@ def filtered_split(statement, sep=None, filter_function=None):
     if sep is None:
         sep = '_'
     if filter_function is None:
-        filter_function = get_raw
+        filter_function = get_raw_value
     return [_part for _part in statement.split(sep) if filter_function(_part)]
 
 
