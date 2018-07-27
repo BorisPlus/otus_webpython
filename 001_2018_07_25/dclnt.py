@@ -123,11 +123,11 @@ def split_snake_case_name_to_words(name):
     return filtered_split(name)
 
 
-def get_trees_nodes_with_powered_function_apply(trees, powered_function):
+def get_trees_nodes_with_node_powered_function_apply(trees, node_powered_function):
     function_names = [
         element for element in convert_to_flat(
             [
-                powered_function(tree) for tree in trees
+                node_powered_function(tree) for tree in trees
             ]
         ) if not (element.startswith('__') and element.endswith('__'))
     ]
@@ -140,12 +140,12 @@ def get_real_trees(path):
 
 def get_all_words_in_path(path):
     trees = get_real_trees(path)
-    function_names = get_trees_nodes_with_powered_function_apply(trees, get_all_names)
+    function_names = get_trees_nodes_with_node_powered_function_apply(trees, get_all_names)
     return convert_to_flat([split_snake_case_name_to_words(function_name) for function_name in function_names])
 
 
 def get_functions_names_at_lowercase_in_trees(trees):
-    function_names = get_trees_nodes_with_powered_function_apply(trees, get_nodes_names_at_lowercase)
+    function_names = get_trees_nodes_with_node_powered_function_apply(trees, get_nodes_names_at_lowercase)
     return function_names
 
 
@@ -167,11 +167,10 @@ def get_top_functions_names_in_path(path, top_size=None):
     return collections.Counter(functions_names).most_common(top_size)
 
 
-# Можно передавать директорию в качетве sys.args[0]
-# c if __name__ == '__main__':
 if __name__ == '__main__':
 
     base_path = sys.argv[1] if len(sys.argv) >= 2 else '.'
+    limit_top_size = sys.argv[2] if len(sys.argv) >= 3 else 200
 
     limit_top_size_partitions_of_verbs = []
     projects = [
@@ -186,10 +185,11 @@ if __name__ == '__main__':
         path_to_analyze = os.path.join(base_path, project)
         limit_top_size_partitions_of_verbs += get_top_verbs_in_path(path_to_analyze)
 
-    limit_top_size = sys.argv[2] if len(sys.argv) >= 3 else 200
-    print('total %s words, %s unique' % (
-        len(limit_top_size_partitions_of_verbs),
-        len(set(limit_top_size_partitions_of_verbs)))
-          )
+    print(
+        'total %s words, %s unique' % (
+            len(limit_top_size_partitions_of_verbs),
+            len(set(limit_top_size_partitions_of_verbs))
+        )
+    )
     for word_item, occurence in collections.Counter(limit_top_size_partitions_of_verbs).most_common(limit_top_size):
         print(word_item, occurence)
