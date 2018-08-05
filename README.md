@@ -26,7 +26,7 @@ pip3 install -r requirements.txt
 
 См. директорию https://github.com/BorisPlus/otus_webpython_001/tree/master/example_usage
 
-```
+```python
 
 import os
 import collections
