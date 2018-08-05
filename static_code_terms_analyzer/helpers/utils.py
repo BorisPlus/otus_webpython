@@ -55,20 +55,54 @@ def split_snake_case_name_to_words(name):
     return filtered_split(name)
 
 
-def get_filtered_applied_items(items,
-                               items_apply_function=get_raw_value,
+def get_filtered_applied_items(input,
+                               input_apply_function=get_raw_value,
                                item_apply_function=get_raw_value,
                                filter_function=get_raw_value):
     """
     Функция фильтрации элементов с применением функций к списку элементов и элементам списка.
-    :param items: список элементов
-    :param items_apply_function: применяемая к списку элементов функция
+    :param input: список элементов или входное значение для input_apply_function для получения списка
+    :param input_apply_function: применяемая к входному значению функция
     :param item_apply_function: применяемая к элементам списка функция
     :param filter_function: Фильрующая функция, оставляет только удовлетворяющие ей элементы
     :return: списиок
     """
-    return [item_apply_function(item) for item in items_apply_function(items) if filter_function(item)]
+    return [item_apply_function(item) for item in input_apply_function(input) if filter_function(item)]
 
+
+def get_object_attribute_with_apply_function(obj, field_name, apply_attribute_function=get_raw_value):
+    """
+    Вернет значение аттрибута объекта с применением функции к результату
+    :param obj: Объект
+    :param field_name: имя свойства или метода
+    :param apply_attribute_function: Применяемая функция
+    :return: значение аттрибута объекта с применением функции к результату
+    """
+    field = getattr(obj, field_name)
+    return apply_attribute_function(field() if callable(field) else field)
+
+
+def to_lowercase(string):
+    return string.lower()
 
 if __name__ == '__main__':
-    pass
+
+    class A:
+        a = 2
+
+        def get_at_power(self):
+            return self.a**2
+
+    b = A()
+
+    z1 = get_object_attribute_with_apply_function(
+        b,
+        'a'
+    )
+    print('b.a %s' % z1)
+
+    z2 = get_object_attribute_with_apply_function(
+        b,
+        'get_at_power'
+    )
+    print('b.get_at_power %s' % z2)
