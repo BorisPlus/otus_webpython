@@ -102,17 +102,17 @@ if __name__ == '__main__':
 РЕЗУЛЬТАТ
 
 ```
-    # [2018-08-07 17:45:22,394] example_001.py  INFO     TOTAL TOP 10 NOUNS: 10 words, 10 unique
-    # [2018-08-07 17:45:22,394] example_001.py  INFO     path: 32
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     self: 30
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     files: 28
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     file: 26
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     source: 23
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     trees: 22
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     names: 21
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     target: 20
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     os: 19
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     list: 18
+[2018-08-07 17:45:22,394] example_001.py  INFO     TOTAL TOP 10 NOUNS: 10 words, 10 unique
+[2018-08-07 17:45:22,394] example_001.py  INFO     path: 32
+[2018-08-07 17:45:22,395] example_001.py  INFO     self: 30
+[2018-08-07 17:45:22,395] example_001.py  INFO     files: 28
+[2018-08-07 17:45:22,395] example_001.py  INFO     file: 26
+[2018-08-07 17:45:22,395] example_001.py  INFO     source: 23
+[2018-08-07 17:45:22,395] example_001.py  INFO     trees: 22
+[2018-08-07 17:45:22,395] example_001.py  INFO     names: 21
+[2018-08-07 17:45:22,395] example_001.py  INFO     target: 20
+[2018-08-07 17:45:22,395] example_001.py  INFO     os: 19
+[2018-08-07 17:45:22,395] example_001.py  INFO     list: 18
 ```
 
 #### Пример №2
@@ -165,18 +165,17 @@ if __name__ == '__main__':
 РЕЗУЛЬТАТ
 
 ```
-    # [2018-08-07 17:45:22,394] example_001.py  INFO     TOTAL TOP 10 NOUNS: 10 words, 10 unique
-    # [2018-08-07 17:45:22,394] example_001.py  INFO     path: 32
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     self: 30
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     files: 28
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     file: 26
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     source: 23
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     trees: 22
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     names: 21
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     target: 20
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     os: 19
-    # [2018-08-07 17:45:22,395] example_001.py  INFO     list: 18
-
+[2018-08-07 17:45:22,394] example_001.py  INFO     TOTAL TOP 10 NOUNS: 10 words, 10 unique
+[2018-08-07 17:45:22,394] example_001.py  INFO     path: 32
+[2018-08-07 17:45:22,395] example_001.py  INFO     self: 30
+[2018-08-07 17:45:22,395] example_001.py  INFO     files: 28
+[2018-08-07 17:45:22,395] example_001.py  INFO     file: 26
+[2018-08-07 17:45:22,395] example_001.py  INFO     source: 23
+[2018-08-07 17:45:22,395] example_001.py  INFO     trees: 22
+[2018-08-07 17:45:22,395] example_001.py  INFO     names: 21
+[2018-08-07 17:45:22,395] example_001.py  INFO     target: 20
+[2018-08-07 17:45:22,395] example_001.py  INFO     os: 19
+[2018-08-07 17:45:22,395] example_001.py  INFO     list: 18
 ```
 
 #### Пример №3
@@ -229,24 +228,22 @@ if __name__ == '__main__':
 РЕЗУЛЬТАТ
 
 ```
-    # [2018-08-07 17:45:22,637] example_001.py  INFO     TOTAL TOP 15 WORDS: 15 words, 15 unique
-    # [2018-08-07 17:45:22,637] example_001.py  INFO     path: 32
-    # [2018-08-07 17:45:22,637] example_001.py  INFO     self: 30
-    # [2018-08-07 17:45:22,637] example_001.py  INFO     files: 28
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     file: 26
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     source: 23
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     trees: 22
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     names: 21
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     target: 20
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     os: 19
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     list: 18
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     function: 17
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     rootlogger: 16
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     top: 15
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     name: 14
-    # [2018-08-07 17:45:22,638] example_001.py  INFO     kwargs: 14
-
-
+[2018-08-07 17:45:22,637] example_001.py  INFO     TOTAL TOP 15 WORDS: 15 words, 15 unique
+[2018-08-07 17:45:22,637] example_001.py  INFO     path: 32
+[2018-08-07 17:45:22,637] example_001.py  INFO     self: 30
+[2018-08-07 17:45:22,637] example_001.py  INFO     files: 28
+[2018-08-07 17:45:22,638] example_001.py  INFO     file: 26
+[2018-08-07 17:45:22,638] example_001.py  INFO     source: 23
+[2018-08-07 17:45:22,638] example_001.py  INFO     trees: 22
+[2018-08-07 17:45:22,638] example_001.py  INFO     names: 21
+[2018-08-07 17:45:22,638] example_001.py  INFO     target: 20
+[2018-08-07 17:45:22,638] example_001.py  INFO     os: 19
+[2018-08-07 17:45:22,638] example_001.py  INFO     list: 18
+[2018-08-07 17:45:22,638] example_001.py  INFO     function: 17
+[2018-08-07 17:45:22,638] example_001.py  INFO     rootlogger: 16
+[2018-08-07 17:45:22,638] example_001.py  INFO     top: 15
+[2018-08-07 17:45:22,638] example_001.py  INFO     name: 14
+[2018-08-07 17:45:22,638] example_001.py  INFO     kwargs: 14
 ```
 
 
