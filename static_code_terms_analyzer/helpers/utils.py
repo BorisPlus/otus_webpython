@@ -10,7 +10,7 @@ def convert_to_flat(items):
     """
     result = []
     for item in items:
-        if isinstance(item, collections.Iterable):
+        if isinstance(item, list) or isinstance(item, tuple) or isinstance(item, set):
             result.extend(convert_to_flat(item))
         else:
             result.append(item)
@@ -21,7 +21,7 @@ def get_raw_value(x):
     return x
 
 
-def filtered_split(statement, sep=None, filter_function=None):
+def filtered_split(statement, sep='_', filter_function=get_raw_value):
     """
     Функция разбиения строки с применением фильтрационной функции.
     :param statement: Строковое выражение для разбиения на части
@@ -29,11 +29,14 @@ def filtered_split(statement, sep=None, filter_function=None):
     :param filter_function: Фильрующая функция, оставляет только удовлетворяющие ей после разбиения части
     :return:
     """
-    if sep is None:
-        sep = '_'
-    if filter_function is None:
-        filter_function = get_raw_value
-    return [part for part in statement.split(sep) if filter_function(part)]
+    return [part for part in statement.split(sep=sep) if filter_function(part)]
+
+
+def apply_function_to_list(elements, apply_function=get_raw_value):
+    result_list = []
+    for element in elements:
+        result_list.extend(apply_function(element))
+    return result_list
 
 
 # для снижения вложенности, если было б нужно
@@ -85,24 +88,16 @@ def get_object_attribute_with_apply_function(obj, field_name, apply_attribute_fu
 def to_lowercase(string):
     return string.lower()
 
+
+def is_special(statement):
+    if statement.startswith('__') and statement.endswith('__'):
+        return True
+    return False
+
+
+def is_not_special(statement):
+    return not is_special(statement)
+
+
 if __name__ == '__main__':
-
-    class A:
-        a = 2
-
-        def get_at_power(self):
-            return self.a**2
-
-    b = A()
-
-    z1 = get_object_attribute_with_apply_function(
-        b,
-        'a'
-    )
-    print('b.a %s' % z1)
-
-    z2 = get_object_attribute_with_apply_function(
-        b,
-        'get_at_power'
-    )
-    print('b.get_at_power %s' % z2)
+    pass
