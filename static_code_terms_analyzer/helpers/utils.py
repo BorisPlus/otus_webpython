@@ -32,10 +32,11 @@ def filtered_split(statement, sep='_', filter_function=get_raw_value):
     return [part for part in statement.split(sep=sep) if filter_function(part)]
 
 
-def apply_function_to_list(elements, apply_function=get_raw_value):
+def apply_function_to_list(elements, apply_function=get_raw_value, filter_function=get_raw_value):
     result_list = []
     for element in elements:
-        result_list.extend(apply_function(element))
+        if filter_function(element):
+            result_list.extend(apply_function(element))
     return result_list
 
 
@@ -86,6 +87,8 @@ def get_object_attribute_with_apply_function(obj, field_name, apply_attribute_fu
 
 
 def to_lowercase(string):
+    if not string:
+        return None
     return string.lower()
 
 

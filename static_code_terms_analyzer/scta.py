@@ -152,7 +152,7 @@ def get_node_id(node):
     return get_object_attribute_with_apply_function(node, 'id', apply_attribute_function=to_lowercase)
 
 
-def get_node_name_at_lowercase(node):
+def get_function_def_node_name_at_lowercase(node):
     """
     Вернет имя функции
     :param node: вершина AST-дерева
@@ -160,6 +160,19 @@ def get_node_name_at_lowercase(node):
     """
     return get_object_attribute_with_apply_function(node, 'name', apply_attribute_function=to_lowercase)
 
+
+def get_node_name_at_lowercase(node):
+    """
+    Вернет имя вершины
+    :param node: вершина AST-дерева
+    :return:
+    """
+    if hasattr(node, 'name'):
+        return get_function_def_node_name_at_lowercase(node)
+    elif hasattr(node, 'id'):
+        return get_node_id(node)
+    else:
+        return ''
 
 #
 
@@ -322,7 +335,7 @@ def get_function_def_nodes_names_at_lowercase(tree):
     return get_filtered_applied_items(
         tree[2],
         input_apply_function=ast.walk,
-        item_apply_function=get_node_name_at_lowercase,
+        item_apply_function=get_function_def_node_name_at_lowercase,
         filter_function=is_ast_function_def
     )
 
@@ -373,7 +386,7 @@ def is_real_tree(tree):
     return False
 
 
-def get_real_trees(path):
+def get_real_trees_in_path(path):
     """
     Отфильровывает список AST-деревьев на предмет реальных по директории
     :param path: файловая директория
@@ -385,6 +398,29 @@ def get_real_trees(path):
         item_apply_function=get_raw_value,
         filter_function=is_real_tree
     )
+
+
+def get_real_trees(trees):
+    """
+    Отфильровывает список AST-деревьев на предмет реальных
+    :param trees: AST-деревья
+    :return:
+    """
+    return get_filtered_applied_items(
+        trees
+    )
+
+
+def get_real_statements(statements):
+    """
+    Отфильровывает список выражений на предмет реальных
+    :param statements: выражения
+    :return:
+    """
+    return get_filtered_applied_items(
+        statements
+    )
+
 #
 #
 # def get_all_words_in_path(path):
@@ -407,31 +443,50 @@ def get_real_trees(path):
 #
 
 
-def get_top_verbs_at_functions_names_in_path(path, top_limit=10):
+def get_verbs_of_functions_names_in_path(path):
+    """
+    Получает список глаголов в коде из файловой директории
+    :param path: файловая директория
+    :return:
+    """
+    real_trees = get_real_trees_in_path(path)
+    functions_names = get_function_def_nodes_names_at_lowercase_of_trees(real_trees)
+    not_special_functions_names = get_not_special_statements(functions_names)
+    return get_verbs_from_statements(not_special_functions_names)
+
+
+def get_top_verbs_of_functions_names_in_path(path, top_limit=10):
     """
     Получает список глаголов в коде из файловой директории
     :param path: файловая директория
     :param top_limit: отбор первых по частоте
     :return:
     """
-    real_trees = get_real_trees(path)
-    functions_names = get_function_def_nodes_names_at_lowercase_of_trees(real_trees)
-    not_special_functions_names = get_not_special_statements(functions_names)
-    verbs = get_verbs_from_statements(not_special_functions_names)
+    verbs = get_verbs_of_functions_names_in_path(path)
     return collections.Counter(verbs).most_common(top_limit)
 
 
-def get_top_nouns_at_variables_names_in_path(path, top_limit=10):
+def get_nouns_of_variables_names_in_path(path):
+    """
+    Получает список существительных в коде из файловой директории
+    :param path: файловая директория
+    :return:
+    """
+    real_trees = get_real_trees_in_path(path)
+    variables_names = get_variable_nodes_names_at_lowercase_of_trees(real_trees)
+    not_special_variables_names = get_not_special_statements(variables_names)
+    nouns_in_variables_names = get_nouns_from_statements(not_special_variables_names)
+    return nouns_in_variables_names
+
+
+def get_top_nouns_of_variables_names_in_path(path, top_limit=10):
     """
     Получает список существительных в коде из файловой директории
     :param path: файловая директория
     :param top_limit: отбор первых по частоте
     :return:
     """
-    real_trees = get_real_trees(path)
-    variables_names = get_variable_nodes_names_at_lowercase_of_trees(real_trees)
-    not_special_variables_names = get_not_special_statements(variables_names)
-    nouns = get_nouns_from_statements(not_special_variables_names)
+    nouns = get_nouns_of_variables_names_in_path(path)
     return collections.Counter(nouns).most_common(top_limit)
 
 
@@ -441,9 +496,10 @@ def get_words_in_path(path):
     :param path: файловая директория
     :return:
     """
-    real_trees = get_real_trees(path)
-    statements = get_variable_nodes_names_at_lowercase_of_trees(real_trees)
-    not_special_statements = get_not_special_statements(statements)
+    real_trees = get_real_trees_in_path(path)
+    statements = get_all_nodes_names_at_lowercase_of_trees(real_trees)
+    real_statements = get_real_statements(statements)
+    not_special_statements = get_not_special_statements(real_statements)
     words = get_words_from_statements(not_special_statements)
     return words
 
@@ -457,6 +513,47 @@ def get_top_words_in_path(path, top_limit=10):
     """
     words = get_words_in_path(path)
     return collections.Counter(words).most_common(top_limit)
+
+
+# Мега обобщающий диспетчер
+
+
+def get_terms_of_entities_in_path(path, term_type='all', entity_type='all'):
+    entity_types_extract_functions = dict(
+        variables=get_variable_nodes_names_at_lowercase_of_trees,
+        functions=get_function_def_nodes_names_at_lowercase,
+        all=get_all_nodes_names_at_lowercase_of_trees,
+        default=get_all_nodes_names_at_lowercase_of_trees,
+    )
+    entity_types_extract_function = entity_types_extract_functions.get(
+        entity_type,
+        entity_types_extract_functions.get('default'),
+    )
+    term_type_extract_functions = dict(
+        noun=get_nouns_from_statements,
+        verb=get_verbs_from_statements,
+        all=get_words_from_statements,
+        default=get_words_from_statements,
+    )
+    term_type_extract_function = term_type_extract_functions.get(
+        term_type,
+        term_type_extract_functions.get('default'),
+    )
+    real_trees = get_real_trees_in_path(path)
+    statements = entity_types_extract_function(real_trees)
+    real_statements = get_real_statements(statements)
+    not_special_statements = get_not_special_statements(real_statements)
+    term_words = term_type_extract_function(not_special_statements)
+    return term_words
+
+
+def get_top_term_words(term_words, top_limit=10):
+    return collections.Counter(term_words).most_common(top_limit)
+
+
+def get_top_terms_of_entities_in_path(path, term_type='all', entity_type='all', top_limit=10):
+    term_words = get_terms_of_entities_in_path(path, term_type=term_type, entity_type=entity_type)
+    return get_top_term_words(term_words, top_limit)
 
 
 if __name__ == '__main__':
