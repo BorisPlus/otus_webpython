@@ -198,7 +198,6 @@ from static_code_terms_analyzer.scta import (
 
 ## Авторы
 
-* **Melevir** - *Initial work* - [Melevir](https://gist.github.com/Melevir/5754a1b553eb11839238e43734d0eb79)
 * **BorisPlus** - *Refactor work* - [BorisPlus](https://github.com/BorisPlus/otus_webpython_001)
 
 ## Лицензия

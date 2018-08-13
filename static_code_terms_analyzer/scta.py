@@ -381,9 +381,7 @@ def is_real_tree(tree):
     :param tree: AST-дерево
     :return:
     """
-    if isinstance(tree, tuple) and len(tree) == 3 and tree[2]:
-        return True
-    return False
+    return isinstance(tree, tuple) and len(tree) == 3 and tree[2]
 
 
 def get_real_trees_in_path(path):
